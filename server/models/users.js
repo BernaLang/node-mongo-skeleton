@@ -1,0 +1,7 @@
+/**
+* USERS model.
+*/
+'use strict';
+
+
+
