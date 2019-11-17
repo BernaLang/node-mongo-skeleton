@@ -3,10 +3,14 @@
 */
 'use strict';
 
-let express = require('express');
+const express = require('express');
 let router = express.Router();
+const usersRoutes = require('./users');
 
-// To confirm setup only.
-router.get('/', function(req, res) { return res.send('Hello world!'); });
+// Welcome message
+router.get('/', function(req, res) { return res.json({ message: 'Welcome to our API!' }); });
+
+// Endpoints
+router.use('/users', usersRoutes);
 
 module.exports = router;
