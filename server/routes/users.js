@@ -39,16 +39,41 @@ router.get('/:userId', async function(req, res) {
 	try {
 		let userId = _get(req, 'params.userId', null);
 
-		let user = await getUser(userId);
-		if(user.ok !== true){
-			return res.status(400).json({ ok: false, timestamp: moment.utc().toDate(), err: user.error })
+		let foundUser = await getUser(userId);
+		if(foundUser.ok !== true){
+			return res.status(400).json({ ok: false, timestamp: moment.utc().toDate(), err: foundUser.error })
 		} else {
-			if(!user.user){
+			if(!foundUser.user){
 				return res.status(404).json({ ok: true, timestamp: moment.utc().toDate(), msg: 'user-not-found' });
 			} else {
-				return res.status(200).json({ ok: true, timestamp: moment.utc().toDate(), user: user.user });
+				return res.status(200).json({ ok: true, timestamp: moment.utc().toDate(), user: foundUser.user });
 			}
 		}
+
+	} catch (error) {
+		if(error.message === "invalid-userId"){
+			return res.status(400).json({ ok: false, err: error.message, timestamp: moment.utc().toDate() });
+		} else {
+			console.log('Unexpected error -> ', error);
+			return res.status(500).json({ ok: false, err: error.message, timestamp: moment.utc().toDate() });
+		}
+	}
+});
+
+router.put('/:userId', async function(req, res) {
+	try {
+		let userId = _get(req, 'params.userId', null);
+
+		let foundUser = await getUser(userId);
+		if(foundUser.ok !== true){
+			return res.status(400).json({ ok: false, timestamp: moment.utc().toDate(), err: foundUser.error })
+		}
+		
+		if(!foundUser.user){
+			return res.status(404).json({ ok: true, timestamp: moment.utc().toDate(), msg: 'user-not-found' });
+		}
+
+
 
 	} catch (error) {
 		if(error.message === "invalid-userId"){
