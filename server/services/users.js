@@ -21,7 +21,7 @@ async function getUserById(userId){
 }
 
 function checkUsername(username){
-	return User.findOne({ username: username }).exec();
+	return User.findOne({ username: username, _deleted: false }).exec();
 }
 
 function queryUsers(query, sort, page){
