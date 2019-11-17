@@ -7,8 +7,21 @@ let { User } = require('../models');
 
 const USERS_PER_PAGE = 2;
 
+async function getUserById(userId){
+	try {
+		let user = await User.findOne({ _id: userId }, { _deleted: 0 }).exec();
+		return user
+	} catch (error) {
+		if(error && error.name === "CastError" && error.kind === "ObjectId" && error.path === '_id'){
+			throw new Error('invalid-userId');
+		} else{
+			throw error;
+		}
+	}
+}
+
 function checkUsername(username){
-	return User.findOne({ username: username }).exec()
+	return User.findOne({ username: username }).exec();
 }
 
 function queryUsers(query, sort, page){
@@ -61,5 +74,6 @@ module.exports = {
 	queryUsers,
 	countUsers,
 	addUser,
-	validateUser
+	validateUser,
+	getUserById
 };
