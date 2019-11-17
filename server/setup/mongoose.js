@@ -61,7 +61,8 @@ function connectToDb() {
     keepAlive: 300000,
     connectTimeoutMS: 30000,
     ha: true,
-    haInterval: 10000
+		haInterval: 10000,
+		useUnifiedTopology: true
   }).catch(function(err) {
     // To avoid promise not handled exception.
     console.error('Unable to connect MongoDB. If problem persists, please restart the server. Error: ' + err);
