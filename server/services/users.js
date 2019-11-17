@@ -7,6 +7,10 @@ let { User } = require('../models');
 
 const USERS_PER_PAGE = 2;
 
+function checkUsername(username){
+	return User.findOne({ username: username }).exec()
+}
+
 function queryUsers(query, sort, page){
 	let skip, limit;
 	if(page && typeof(page) === "number" && page > 0){
@@ -29,7 +33,25 @@ async function countUsers(query, page){
 	return { totalDocs, totalPages };
 }
 
+function addUser(user) {
+	let newUser = new User(user);
+	return newUser.save();
+}
+
+async function validateUser(user){
+	try {
+		let newUser = new User(user);
+		await newUser.validate();
+		return { valid: true };
+	} catch (error) {
+		return { valid: false, info: error };
+	}
+}
+
 module.exports = {
+	checkUsername,
 	queryUsers,
-	countUsers
+	countUsers,
+	addUser,
+	validateUser
 };

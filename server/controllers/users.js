@@ -3,7 +3,7 @@
 */
 'use strict';
 
-let { queryUsers, countUsers } = require('../services/users');
+let { queryUsers, addUser, checkUsername, validateUser, countUsers } = require('../services/users');
 
 async function getUsers(params = {}){
 	if(!params) params = {};
@@ -27,6 +27,23 @@ async function getUsers(params = {}){
 	return { ...counts, users };
 }
 
+async function createUser(userInfo){
+
+	let validUser = await validateUser(userInfo);
+	if(validUser.valid !== true){
+		return { ok: false, error: { msg: 'invalid-user', info: validUser.info } }
+	}
+
+	let usernameExists = await checkUsername(userInfo.username);
+	if(usernameExists !== null){
+		return { ok: false, error: { msg: 'username-exists' } };
+	}
+
+	let newUser = await addUser(userInfo);
+	return { ok: true, info: newUser }
+}
+
 module.exports = {
-	getUsers
+	getUsers,
+	createUser
 };
