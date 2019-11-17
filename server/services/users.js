@@ -20,8 +20,12 @@ async function getUserById(userId){
 	}
 }
 
-function checkUsername(username){
-	return User.findOne({ username: username, _deleted: false }).exec();
+function checkUsername(username, ignoreId){
+	// If ignoreId var is provided then it will ignore that specific doc in the validation (used for update queries)
+	let query = (!ignoreId) ? 
+		{ username, _delete: false }
+		: { username, _delete: false, _id: { $ne: ignoreId } }
+	return User.findOne(query).exec();
 }
 
 function queryUsers(query, sort, page){
@@ -35,9 +39,13 @@ function queryUsers(query, sort, page){
 		limit = 0;
 	}
 
+	// Hides the _deleted field UNLESS it's present on query
 	let fields = (!query || query._deleted === undefined) ?
 	{ _deleted: 0 }
 	: null;
+
+	// Queries for documents that are not deleted UNLESS _delete field is present
+	query = { _deleted: false, ...query };
 
 	return User.find(query, fields, { sort: sort, limit: limit, skip: skip }).exec();
 }
@@ -69,11 +77,17 @@ async function validateUser(user){
 	}
 }
 
+function updateUser(userInfo, userId){
+	delete userInfo._id;
+	return User.findOneAndUpdate({ _id: userId }, { $set: userInfo }, { new: true, fields: { _deleted: 0 } });
+}
+
 module.exports = {
 	checkUsername,
 	queryUsers,
 	countUsers,
 	addUser,
 	validateUser,
-	getUserById
+	getUserById,
+	updateUser
 };

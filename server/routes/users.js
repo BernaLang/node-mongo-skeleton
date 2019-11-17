@@ -3,7 +3,7 @@
 */
 'use strict';
 let express = require('express');
-let { getUsers, createUser, getUser } = require('../controllers/users');
+let { getUsers, createUser, getUser, updateUser } = require('../controllers/users');
 let moment = require('moment');
 let _get = require('lodash/get')
 
@@ -73,7 +73,13 @@ router.put('/:userId', async function(req, res) {
 			return res.status(404).json({ ok: true, timestamp: moment.utc().toDate(), msg: 'user-not-found' });
 		}
 
-
+		let newUserInf = req.body;
+		let updatedUser = await updateUser(newUserInf, userId);
+		if(updatedUser.ok !== true){
+			return res.status(400).json({ ok: false, timestamp: moment.utc().toDate(), err: updatedUser.error })
+		} else {
+			return res.status(200).json({ ok: true, timestamp: moment.utc().toDate(), user: updatedUser.info });
+		}
 
 	} catch (error) {
 		if(error.message === "invalid-userId"){

@@ -9,7 +9,8 @@ let {
 	checkUsername, 
 	validateUser, 
 	countUsers, 
-	getUserById 
+	getUserById,
+	updateUser: updateUserService
 } = require('../services/users');
 
 async function getUser(userId){
@@ -59,8 +60,27 @@ async function createUser(userInfo){
 	return { ok: true, info: newUser };
 }
 
+async function updateUser(userInfo, userId){
+
+	userInfo._id = userId;
+	let validUser = await validateUser(userInfo);
+	if(validUser.valid !== true){
+		return { ok: false, error: { msg: 'invalid-user', info: validUser.info } };
+	}
+
+	let usernameExists = await checkUsername(userInfo.username, userId);
+	if(usernameExists !== null && usernameExists._id !== userInfo._id){
+		return { ok: false, error: { msg: 'username-exists' } };
+	}
+
+	let updatedUser = await updateUserService(userInfo, userId);
+	console.log(updatedUser);
+	return { ok: true, info: updatedUser };
+}
+
 module.exports = {
 	getUsers,
 	createUser,
-	getUser
+	getUser,
+	updateUser
 };
