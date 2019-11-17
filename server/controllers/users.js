@@ -17,9 +17,16 @@ async function getUser(userId){
 	if(!userId){
 		return { ok: false, error: { msg: 'invalid-userId' } };
 	} 
-	
-	let user = await getUserById(userId);
-	return { ok: true, user };
+	try {
+		let getUser = await getUserById(userId);
+		return { ok: true, user: getUser };
+	} catch (error) {
+		if(error && error.name === "CastError" && error.kind === "ObjectId" && error.path === '_id'){
+			return { ok: false, error: { msg: 'invalid-userId' } };
+		} else {
+			throw error;
+		}
+	}
 }
 
 async function getUsers(params = {}){
@@ -62,6 +69,15 @@ async function createUser(userInfo){
 
 async function updateUser(userInfo, userId){
 
+	let foundUser = await getUser(userId);
+	if(foundUser.ok !== true){
+		return { ok: false, error: foundUser.error };
+	}
+	
+	if(!foundUser.user){
+		return { ok: false, error: { msg: 'user-not-found' } };
+	}
+
 	userInfo._id = userId;
 	let validUser = await validateUser(userInfo);
 	if(validUser.valid !== true){
@@ -77,9 +93,25 @@ async function updateUser(userInfo, userId){
 	return { ok: true, info: updatedUser };
 }
 
+async function deleteUser(userId){
+
+	let foundUser = await getUser(userId);
+	if(foundUser.ok !== true){
+		return { ok: false, error: foundUser.error };
+	}
+	
+	if(!foundUser.user){
+		return { ok: false, error: { msg: 'user-not-found' } };
+	}
+
+	let deletedUser = await updateUserService({ _deleted: true }, userId);
+	return { ok: true, info: deletedUser };
+}
+
 module.exports = {
 	getUsers,
 	createUser,
 	getUser,
-	updateUser
+	updateUser,
+	deleteUser
 };

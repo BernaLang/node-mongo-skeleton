@@ -8,22 +8,13 @@ let { User } = require('../models');
 const USERS_PER_PAGE = 2;
 
 async function getUserById(userId){
-	try {
-		let user = await User.findOne({ _id: userId }, { _deleted: 0 }).exec();
-		return user
-	} catch (error) {
-		if(error && error.name === "CastError" && error.kind === "ObjectId" && error.path === '_id'){
-			throw new Error('invalid-userId');
-		} else{
-			throw error;
-		}
-	}
+	return await User.findOne({ _id: userId, _deleted: false }, { _deleted: 0 }).exec();
 }
 
 function checkUsername(username, ignoreId){
 	// If ignoreId var is provided then it will ignore that specific doc in the validation (used for update queries)
-	let query = (!ignoreId) ? 
-		{ username, _delete: false }
+	let query = (!ignoreId) 
+		? { username, _delete: false }
 		: { username, _delete: false, _id: { $ne: ignoreId } }
 	return User.findOne(query).exec();
 }
@@ -40,9 +31,9 @@ function queryUsers(query, sort, page){
 	}
 
 	// Hides the _deleted field UNLESS it's present on query
-	let fields = (!query || query._deleted === undefined) ?
-	{ _deleted: 0 }
-	: null;
+	let fields = (!query || query._deleted === undefined) 
+		? { _deleted: 0 }
+		: null;
 
 	// Queries for documents that are not deleted UNLESS _delete field is present
 	query = { _deleted: false, ...query };
@@ -51,13 +42,16 @@ function queryUsers(query, sort, page){
 }
 
 async function countUsers(query, page){
+	
+	// Queries for documents that are not deleted UNLESS _delete field is present
+	query = { _deleted: false, ...query };
 	let totalDocs = await User.countDocuments(query).exec();
 	
 	// Caculates totalPages. If there is no page provided then totalPages = 1 UNLESS totalDocs === 0
-	let totalPages = ( page && typeof page === "number" && page > 0 ) ? 
-		Math.round(totalDocs / USERS_PER_PAGE)
-		: ( totalDocs === 0 ) ?
-			0
+	let totalPages = ( page && typeof page === "number" && page > 0 ) 
+		? Math.round(totalDocs / USERS_PER_PAGE)
+		: ( totalDocs === 0 ) 
+			? 0
 			: 1;
 	return { totalDocs, totalPages };
 }
