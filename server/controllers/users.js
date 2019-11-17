@@ -74,7 +74,6 @@ async function updateUser(userInfo, userId){
 	}
 
 	let updatedUser = await updateUserService(userInfo, userId);
-	console.log(updatedUser);
 	return { ok: true, info: updatedUser };
 }
 
