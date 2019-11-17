@@ -21,15 +21,23 @@ function queryUsers(query, sort, page){
 		skip = 0;
 		limit = 0;
 	}
-	return User.find(query, null, { sort: sort, limit: limit, skip: skip }).exec();
+
+	let fields = (!query || query._deleted === undefined) ?
+	{ _deleted: 0 }
+	: null;
+
+	return User.find(query, fields, { sort: sort, limit: limit, skip: skip }).exec();
 }
 
 async function countUsers(query, page){
 	let totalDocs = await User.countDocuments(query).exec();
 	
-	let totalPages = (page && typeof(page) === "number" && page > 0) ? 
+	// Caculates totalPages. If there is no page provided then totalPages = 1 UNLESS totalDocs === 0
+	let totalPages = ( page && typeof page === "number" && page > 0 ) ? 
 		Math.round(totalDocs / USERS_PER_PAGE)
-		: 1;
+		: ( totalDocs === 0 ) ?
+			0
+			: 1;
 	return { totalDocs, totalPages };
 }
 
