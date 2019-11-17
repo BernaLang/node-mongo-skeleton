@@ -3,4 +3,8 @@
 */
 'use strict';
 
-module.exports = {};
+let { userModel } = require('./users');
+
+module.exports = {
+  User: userModel
+};
