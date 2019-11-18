@@ -2,9 +2,9 @@
   "name": "node-js-skeleton",
   "version": "1.0.0",
   "scripts": {
-    "start": "node app.js",
-    "test": "NODE_ENV=test mocha --recursive --inspect --exit test",
-    "test-win": "set NODE_ENV=test&& mocha --recursive --inspect --exit test"
+    "start": "NODE_ENV=dev node app.js",
+    "test": "NODE_ENV=test mocha --timeout 5000 --recursive --exit test",
+    "test-win": "set NODE_ENV=test && mocha --timeout 5000 --recursive --exit test"
   },
   "dependencies": {
     "body-parser": "1.19.0",
