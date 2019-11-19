@@ -4,35 +4,42 @@
 'use strict';
 
 let mongoose = require('mongoose');
-const DATABASE_URL = 'mongodb://localhost:27017/AirportAI';
-
-
-module.exports = setup;
+const DATABASE_URL = (process.env.NODE_ENV === 'test')
+	? 'mongodb://localhost:27017/AirportAI_test'
+	: 'mongodb://localhost:27017/AirportAI';
 
 /**
 * Sets up MongoDB connection.
 */
 function setup() {
+	
+	//TODO: Better way to prevent database logs from showing in testing
 
   mongoose.connection.on('connected', function () {
-    console.log('MongoDB connected to database.');
+		if(process.env.NODE_ENV !== 'test') 
+			console.log('MongoDB connected to database.');
   });
   mongoose.connection.on('open', function () {
-    console.log('MongoDB connection opened!');
+		if(process.env.NODE_ENV !== 'test') 
+    	console.log('MongoDB connection opened!');
   });
   mongoose.connection.on('error', function () {
-    console.error('MongoDB connection error! Disconnecting...');
+		if(process.env.NODE_ENV !== 'test') 
+    	console.error('MongoDB connection error! Disconnecting...');
     mongoose.disconnect();
   });
   mongoose.connection.on('disconnected', function () {
-    console.error('MongoDB disconnected! Attempting to reconnect...');
+		if(process.env.NODE_ENV !== 'test') 
+    	console.error('MongoDB disconnected! Attempting to reconnect...');
     connectToDb();
   });
   mongoose.connection.on('reconnected', function () {
-    console.log('MongoDB reconnected!');
+		if(process.env.NODE_ENV !== 'test') 
+    	console.log('MongoDB reconnected!');
   });
   mongoose.connection.on('close', function () {
-    console.error('MongoDB closed!');
+		if(process.env.NODE_ENV !== 'test') 
+    	console.error('MongoDB closed!');
   });
 
   return connectToDb().then(function() {
@@ -69,3 +76,5 @@ function connectToDb() {
     console.error('Unable to connect MongoDB. If problem persists, please restart the server. Error: ' + err);
   });
 }
+
+module.exports = setup;
